@@ -206,8 +206,8 @@ public class Zip {
             }
 
             var writeBytes: UInt64 = 0
-            var filePointer: UnsafeMutablePointer<FILE>?
-            filePointer = fopen(fullPath, "wb")
+//            var filePointer: UnsafeMutablePointer<FILE>?
+            let filePointer = fopen(fullPath, "wb")
             while filePointer != nil {
                 let readBytes = unzReadCurrentFile(zip, &buffer, bufferSize)
                 if readBytes > 0 {
