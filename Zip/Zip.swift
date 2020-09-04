@@ -182,7 +182,7 @@ public class Zip {
             let creationDate = Date()
 
             let directoryAttributes: [FileAttributeKey: Any]?
-            #if os(Linux)
+            #if os(Linux) || os(Android)
                 // On Linux, setting attributes is not yet really implemented.
                 // In Swift 4.2, the only settable attribute is `.posixPermissions`.
                 // See https://github.com/apple/swift-corelibs-foundation/blob/swift-4.2-branch/Foundation/FileManager.swift#L182-L196
@@ -192,6 +192,7 @@ public class Zip {
                                        .modificationDate : creationDate]
             #endif
 
+            
             do {
                 if isDirectory {
                     try fileManager.createDirectory(atPath: fullPath, withIntermediateDirectories: true, attributes: directoryAttributes)
@@ -202,7 +203,7 @@ public class Zip {
                 }
             } catch let error
             {
-                throw ZipError.unzipFail("7a \(error)")
+                throw ZipError.unzipFail("7a \(error) fileManager.createDirectory failed, fullPath \(fullPath)")
             }
             if fileManager.fileExists(atPath: fullPath) && !isDirectory && !overwrite {
                 unzCloseCurrentFile(zip)
