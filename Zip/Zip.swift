@@ -200,7 +200,10 @@ public class Zip {
                     let parentDirectory = (fullPath as NSString).deletingLastPathComponent
                     try fileManager.createDirectory(atPath: parentDirectory, withIntermediateDirectories: true, attributes: directoryAttributes)
                 }
-            } catch {}
+            } catch let error
+            {
+                throw ZipError.unzipFail("7a \(error)")
+            }
             if fileManager.fileExists(atPath: fullPath) && !isDirectory && !overwrite {
                 unzCloseCurrentFile(zip)
                 ret = unzGoToNextFile(zip)
