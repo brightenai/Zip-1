@@ -229,7 +229,7 @@ public class Zip {
                 throw ZipError.unzipFail("6")
             }
             guard writeBytes == fileInfo.uncompressed_size else {
-                throw ZipError.unzipFail("7")
+                throw ZipError.unzipFail("7 writeBytes : \(writeBytes)fileInfo.uncompressed_size : \(fileInfo.uncompressed_size) fullPath: \(fullPath)")
             }
 
             //Set file permissions from current fileInfo
