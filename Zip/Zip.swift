@@ -191,7 +191,6 @@ public class Zip {
                 directoryAttributes = [.creationDate : creationDate,
                                        .modificationDate : creationDate]
             #endif
-
             
             do {
                 if isDirectory {
