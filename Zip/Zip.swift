@@ -14,7 +14,7 @@ public enum ZipError: Error {
     /// File not found
     case fileNotFound
     /// Unzip fail
-    case unzipFail
+    case unzipFail(String)
     /// Zip fail
     case zipFail
     
@@ -22,7 +22,7 @@ public enum ZipError: Error {
     public var description: String {
         switch self {
         case .fileNotFound: return NSLocalizedString("File not found.", comment: "")
-        case .unzipFail: return NSLocalizedString("Failed to unzip file.", comment: "")
+        case .unzipFail(let s): return NSLocalizedString("Failed to unzip file.", comment: "\(s)")
         case .zipFail: return NSLocalizedString("Failed to zip file.", comment: "")
         }
     }
@@ -98,6 +98,7 @@ public class Zip {
     
     public class func unzipFile(_ zipFilePath: URL, destination: URL, overwrite: Bool, password: String?, progress: ((_ progress: Double) -> ())? = nil, fileOutputHandler: ((_ unzippedFile: URL) -> Void)? = nil) throws {
         
+        
         // File manager
         let fileManager = FileManager.default
         
@@ -133,7 +134,7 @@ public class Zip {
             unzClose(zip)
         }
         if unzGoToFirstFile(zip) != UNZ_OK {
-            throw ZipError.unzipFail
+            throw ZipError.unzipFail("1")
         }
         repeat {
             if let cPassword = password?.cString(using: String.Encoding.ascii) {
@@ -143,14 +144,14 @@ public class Zip {
                 ret = unzOpenCurrentFile(zip);
             }
             if ret != UNZ_OK {
-                throw ZipError.unzipFail
+                throw ZipError.unzipFail("2")
             }
             var fileInfo = unz_file_info64()
             memset(&fileInfo, 0, MemoryLayout<unz_file_info>.size)
             ret = unzGetCurrentFileInfo64(zip, &fileInfo, nil, 0, nil, 0, nil, 0)
             if ret != UNZ_OK {
                 unzCloseCurrentFile(zip)
-                throw ZipError.unzipFail
+                throw ZipError.unzipFail("3")
             }
             currentPosition += Double(fileInfo.compressed_size)
             let fileNameSize = Int(fileInfo.size_filename) + 1
@@ -163,7 +164,7 @@ public class Zip {
             var pathString = String(cString: fileName)
             
             guard pathString.count > 0 else {
-                throw ZipError.unzipFail
+                throw ZipError.unzipFail("4")
             }
 
             var isDirectory = false
@@ -212,7 +213,7 @@ public class Zip {
                 let readBytes = unzReadCurrentFile(zip, &buffer, bufferSize)
                 if readBytes > 0 {
                     guard fwrite(buffer, Int(readBytes), 1, filePointer) == 1 else {
-                        throw ZipError.unzipFail
+                        throw ZipError.unzipFail("5")
                     }
                     writeBytes += UInt64(readBytes)
                 }
@@ -225,10 +226,10 @@ public class Zip {
 
             crc_ret = unzCloseCurrentFile(zip)
             if crc_ret == UNZ_CRCERROR {
-                throw ZipError.unzipFail
+                throw ZipError.unzipFail("6")
             }
             guard writeBytes == fileInfo.uncompressed_size else {
-                throw ZipError.unzipFail
+                throw ZipError.unzipFail("7")
             }
 
             //Set file permissions from current fileInfo

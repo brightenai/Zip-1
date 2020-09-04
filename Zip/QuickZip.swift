@@ -72,7 +72,7 @@ extension Zip {
             try self.unzipFile(path, destination: destinationUrl, overwrite: true, password: nil, progress: progress)
             return destinationUrl
         }catch{
-            throw(ZipError.unzipFail)
+            throw(ZipError.unzipFail("11"))
         }
     }
     
